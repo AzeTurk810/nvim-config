@@ -8,21 +8,92 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require('lazy').setup({
+	{
+		'hrsh7th/nvim-cmp',
+		dependencies = {
+			'hrsh7th/cmp-nvim-lsp',
+			'hrsh7th/cmp-buffer',
+			'hrsh7th/cmp-path',
+			'hrsh7th/cmp-cmdline',
+			'L3MON4D3/LuaSnip',
+			'saadparwaiz1/cmp_luasnip',
+			'rafamadriz/friendly-snippets',
+		},
+		config = function()
+			local cmp = require('cmp')
+			local luasnip = require('luasnip')
+			require("luasnip.loaders.from_vscode").lazy_load()
+
+			cmp.setup({
+				snippet = {
+					expand = function(args)
+						luasnip.lsp_expand(args.body)
+					end,
+				},
+				mapping = cmp.mapping.preset.insert({
+					['<C-b>'] = cmp.mapping.scroll_docs(-4),
+					['<C-f>'] = cmp.mapping.scroll_docs(4),
+					['<C-Space>'] = cmp.mapping.complete(),
+					['<C-e>'] = cmp.mapping.abort(),
+					['<CR>'] = cmp.mapping.confirm({ select = true }),
+					['<Tab>'] = cmp.mapping(function(fallback)
+						if cmp.visible() then
+							cmp.select_next_item()
+						elseif luasnip.expand_or_jumpable() then
+							luasnip.expand_or_jump()
+						else
+							fallback()
+						end
+					end, { "i", "s" }),
+					['<S-Tab>'] = cmp.mapping(function(fallback)
+						if cmp.visible() then
+							cmp.select_prev_item()
+						elseif luasnip.jumpable(-1) then
+							luasnip.jump(-1)
+						else
+							fallback()
+						end
+					end, { "i", "s" }),
+				}),
+				sources = cmp.config.sources({
+					{ name = 'nvim_lsp' },
+					{ name = 'luasnip' },
+				}, {
+					{ name = 'buffer' },
+					{ name = 'path' },
+				}),
+			})
+    	end,
+	},
+	{
+		'neovim/nvim-lspconfig',
+		config = function()
+			local lspconfig = require('lspconfig')
+
+			-- C++ üçün
+			lspconfig.clangd.setup({ cmd = {"C:/Tools/clangd_20.1.0/bin/clangd.exe", "--query-driver=C:/Tools/MinGW/" }, -- əgər lazım olsa
+			root_dir = lspconfig.util.root_pattern("compile_commands.json", "compile_flags.txt", ".git"),})
+
+			-- Python üçün
+			lspconfig.pyright.setup({})
+
+			-- Lua üçün
+			lspconfig.lua_ls.setup({
+				settings = {
+					Lua = {
+						diagnostics = {
+							globals = { 'vim' },
+						}
+					}
+				}
+			})
+		end,
+	},
+
+
     {
         'folke/lazy.nvim',
         event = 'VimEnter'
-    },
-
-    {
-        'neovim/nvim-lspconfig',
-        lazy = false,
-        config = function()
-            local lspconfig = require('lspconfig')            
-            lspconfig.pylsp.setup({})
-            lspconfig.clangd.setup({
-                cmd = { 'clangd', '--header-insertion=never' },
-            })
-        end,
     },
 
     { 'nvim-tree/nvim-web-devicons' },
@@ -54,6 +125,7 @@ require('lazy').setup({
         })
         vim.cmd.colorscheme('vscode')
     end
+	
 },
 
 
@@ -84,15 +156,32 @@ require('lazy').setup({
             ls.add_snippets('cpp', {
                 s('cd', {
                     t({
-                        '#include \"bits/stdc++.h\"',
-                        '#define int long long',
+						'/*',
+						'Telebe of adicto yani AzeTurk810',
+						'without limits',
+						'*/',
+                        '#include <iostream>',
+						'',
+                        'using ll = long long;',
                         'using namespace std;',
-                        '',
+						'',
+						"#define ln '\\n'",
+						'#define INFi 1e9',
+						'#define INFll 1e18',
+						'', 
+                        'void solve() {',
+						'\t',
+						'}',
+						'',
                         'signed main() {',
                         '\tios::sync_with_stdio(0);',
                         '\tcin.tie(nullptr);',
-                        '\t',
-                        '}'
+                        '\tint t = 1;',
+						'// \t cin >> t;',
+						'\tfor(int cases = 0 ; cases < t;cases ++) {',
+						'\t\tsolve();',
+						'\t}',
+                        '}',
                     }),
                 }),
             })
