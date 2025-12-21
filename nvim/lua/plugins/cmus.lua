@@ -1,0 +1,3 @@
+return {
+    "azadkuh/vim-cmus",
+}
